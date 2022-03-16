@@ -7,7 +7,7 @@ namespace Logging
     {
         static void Main(string[] args)
         {
-            
+
         }
     }
 
@@ -34,61 +34,52 @@ namespace Logging
         }
     }
 
-    public class SecureConsoleLogWriter : ILogger
+    public class SecureLogWriter : ILogger
     {
-        private ConsoleLogWriter _consoleLogWriter;
+        private ILogger _logger;
 
-        public SecureConsoleLogWriter(ConsoleLogWriter consoleLogWriter)
+        public SecureLogWriter(ILogger logger)
         {
-            _consoleLogWriter = consoleLogWriter;
+            _logger = logger;
         }
 
         public void WriteError(string message)
         {
-            if (DateTime.Now.DayOfWeek == DayOfWeek.Thursday)
-            {
-                _consoleLogWriter.WriteError(message);
-            }
-        }
-    }
-
-    public class SecureFileLogWriter : ILogger
-    {
-        private FileLogWriter _fileLogWriter;
-
-        public SecureFileLogWriter(FileLogWriter fileLogWriter)
-        {
-            _fileLogWriter = fileLogWriter;
-        }
-
-        public void WriteError(string message)
-        {
-            if (DateTime.Now.DayOfWeek == DayOfWeek.Thursday)
-            {
-                _fileLogWriter.WriteError(message);
-            }
-        }
-    }
-
-    public class SecureFileAndConsoleLogWriter : ILogger
-    {
-        private ConsoleLogWriter _consoleLogWriter;
-        private FileLogWriter _fileLogWriter;
-
-        public SecureFileAndConsoleLogWriter(ConsoleLogWriter consoleLogWriter, FileLogWriter fileLogWriter)
-        {
-            _consoleLogWriter = consoleLogWriter;
-            _fileLogWriter = fileLogWriter;
-        }
-
-        public void WriteError(string message)
-        {
-            _consoleLogWriter.WriteError(message);
-
             if (DateTime.Now.DayOfWeek == DayOfWeek.Friday)
             {
-                _fileLogWriter.WriteError(message);
+                _logger.WriteError(message);
             }
+        }
+    }
+
+    public class SecureConsoleLogWriter : SecureLogWriter
+    {
+        public SecureConsoleLogWriter(ConsoleLogWriter consoleLogWriter) : base(consoleLogWriter)
+        {
+        }
+    }
+
+    public class SecureFileLogWriter : SecureLogWriter
+    {
+        public SecureFileLogWriter(FileLogWriter fileLogWriter) : base(fileLogWriter)
+        {
+        }
+    }
+
+    public class SecureFileAndConsoleLogWriter : SecureLogWriter
+    {
+        private ConsoleLogWriter _consoleLogWriter;
+
+        public SecureFileAndConsoleLogWriter(ConsoleLogWriter consoleLogWriter, FileLogWriter fileLogWriter) : base(fileLogWriter)
+        {
+            _consoleLogWriter = consoleLogWriter;
+        }
+
+        public new void WriteError(string message)
+        {
+            base.WriteError(message);
+
+            _consoleLogWriter.WriteError(message);
         }
     }
 
